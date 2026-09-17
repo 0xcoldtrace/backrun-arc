@@ -1,0 +1,19 @@
+# arc_arb A0 — thiếu 1 field bắt buộc = refuse load.
+# live/sendRaw TẮT. pending TẮT. strategy=backrun.
+
+strategy = "backrun"
+chain_id = 5042
+dry_run = true
+allow_live = false
+bot_armed = false
+live_mode = "off"
+
+pairs_arb_path = "pairs_arb.txt"
+min_profit_usdc = 2.0
+arb_max_borrow_usdc = 20000
+pairs_min_swap_usdc = 200
+min_depth_usd = 8000
+min_base_fee_gwei = 20
+pending_enabled = false
+flash_provider = "morpho"
+config_reload_sec = 15

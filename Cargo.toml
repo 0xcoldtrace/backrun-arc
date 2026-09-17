@@ -1,0 +1,24 @@
+[package]
+name = "arc_arb"
+version = "0.1.0"
+edition = "2021"
+description = "Arc mainnet (5042) backrun/arb flashloan khung — dry_run, không live"
+publish = false
+
+[lib]
+name = "arc_arb"
+path = "src/lib.rs"
+
+[[bin]]
+name = "arc_arb"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+serde_json = "1"
+reqwest = { version = "0.13", default-features = false, features = ["json", "rustls", "blocking"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

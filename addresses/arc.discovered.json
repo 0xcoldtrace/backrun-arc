@@ -1,0 +1,186 @@
+{
+  "probed_at_utc": "2026-09-17T09:02:35.443416+00:00",
+  "rpc": "https://rpc.mainnet.arc.io",
+  "chain_id_hex": "0x13b2",
+  "chain_id_ok": true,
+  "block_number_hex": "0x1451030",
+  "gas_price_hex": "0x4a817c800",
+  "latest_block_number": "0x1451031",
+  "base_fee_per_gas": "0x4a817c800",
+  "pending_block": null,
+  "pending_block_error": {
+    "message": "requested data not available",
+    "code": -32014
+  },
+  "new_pending_tx_filter_result": null,
+  "new_pending_tx_filter_error": {
+    "code": -32601,
+    "message": "method not supported"
+  },
+  "usdc": {
+    "address": "0x3600000000000000000000000000000000000000",
+    "decimals_call": "0x0000000000000000000000000000000000000000000000000000000000000006",
+    "decimals": 6,
+    "symbol_call": "0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000045553444300000000000000000000000000000000000000000000000000000000",
+    "symbol": "USDC",
+    "getCode_bytes": 1798,
+    "empty": false
+  },
+  "getCode": {
+    "USDC_ERC20": {
+      "address": "0x3600000000000000000000000000000000000000",
+      "code_bytes": 1798,
+      "empty": false,
+      "code_prefix": "0x60806040526004361061005a5760003560e01c80635c60da1b11610043578063",
+      "code_suffix": "6c634300060c0033"
+    },
+    "UNI_V4_PoolManager": {
+      "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+      "code_bytes": 24009,
+      "empty": false,
+      "code_prefix": "0x60a0806040526004361015610012575f80fd5b5f3560e01c908162fdd58e1461",
+      "code_suffix": "6c634300081a000a"
+    },
+    "UNI_V3_factory": {
+      "address": "0xf0db7b58379503491d857dB50AC9ece64c653918",
+      "code_bytes": 24535,
+      "empty": false,
+      "code_prefix": "0x608060405234801561001057600080fd5b506004361061007d5760003560e01c",
+      "code_suffix": "6c6343000706000a"
+    },
+    "UNI_V2_factory": {
+      "address": "0x89e5DB8B5aA49aA85AC63f691524311AEB649eba",
+      "code_bytes": 13859,
+      "empty": false,
+      "code_prefix": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c",
+      "code_suffix": "6c63430005100032"
+    },
+    "ACHSWAP_V2_factory": {
+      "address": "0xb0C2B0acb9c13079dDd871eDaF43Aabf6e88C530",
+      "code_bytes": 13859,
+      "empty": false,
+      "code_prefix": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c",
+      "code_suffix": "6c63430005100032"
+    },
+    "Permit2": {
+      "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+      "code_bytes": 9152,
+      "empty": false,
+      "code_prefix": "0x6040608081526004908136101561001557600080fd5b600090813560e01c8063",
+      "code_suffix": "6c6343000811000a"
+    },
+    "EURC": {
+      "address": "0xbEf5f6d51CB62b58e6A8f77868681825C6fe21c1",
+      "code_bytes": 1798,
+      "empty": false,
+      "code_prefix": "0x60806040526004361061005a5760003560e01c80635c60da1b11610043578063",
+      "code_suffix": "6c634300060c0033"
+    },
+    "MORPHO_DOCS_ARC": {
+      "address": "0x34CD04070dD72b14E241112F6d83812Df5Af7fCD",
+      "code_bytes": 15582,
+      "empty": false,
+      "code_prefix": "0x6080604052600436101561001257600080fd5b6000803560e01c806313af4035",
+      "code_suffix": "6c6343000813000a"
+    },
+    "MORPHO_ETH_BBBB": {
+      "address": "0xBBBBBbbBBb9cC5e90e3b3Af64bdAF62C37EEFFCb",
+      "code_bytes": 0,
+      "empty": true,
+      "code_prefix": "0x",
+      "code_suffix": "0x"
+    },
+    "MORPHO_IRM_DOCS_ARC": {
+      "address": "0xF02615d094Fc02fC031C35fe705e175aA4653f20",
+      "code_bytes": 2282,
+      "empty": false,
+      "code_prefix": "0x6080604090808252600436101561001557600080fd5b600090813560e01c9081",
+      "code_suffix": "6c6343000813000a"
+    },
+    "AAVE_V4_CORE_HUB_ADDRESS_BOOK": {
+      "address": "0x17288dfc86205301064577b98B02b81017e6F79C",
+      "code_bytes": 1419,
+      "empty": false,
+      "code_prefix": "0x608060405261000c61000e565b005b7f00000000000000000000000064f13f38",
+      "code_suffix": "6c634300081c000a"
+    },
+    "AAVE_V4_MAIN_SPOKE_ADDRESS_BOOK": {
+      "address": "0xB843bdC3a87A05E77E07Df9FE48928b3A34b134d",
+      "code_bytes": 1419,
+      "empty": false,
+      "code_prefix": "0x608060405261000c61000e565b005b7f0000000000000000000000006a1bee30",
+      "code_suffix": "6c634300081c000a"
+    },
+    "AERO_BASE_POOLFACTORY_DO_NOT_PIN": {
+      "address": "0x420DD381b31aEf6683db6B902084cB0FFECe40Da",
+      "code_bytes": 0,
+      "empty": true,
+      "code_prefix": "0x",
+      "code_suffix": "0x"
+    }
+  },
+  "morpho": "0x34CD04070dD72b14E241112F6d83812Df5Af7fCD",
+  "morpho_flashFee": null,
+  "morpho_flashLoan_selector_in_bytecode": true,
+  "morpho_source": "https://docs.morpho.org/get-started/resources/addresses/ Arc tab + eth_getCode 5042",
+  "aave_hub": "0x17288dfc86205301064577b98B02b81017e6F79C",
+  "aave_source": "https://raw.githubusercontent.com/bgd-labs/aave-address-book/main/src/ts/AaveV4Arc.ts + eth_getCode 5042",
+  "aero_lite_factory": "MISSING",
+  "aero_note": "Aero Lite announced live on Arc (https://aero.xyz/articles/aero-lite-is-live-on-arc/ 2026-09-16). Base PoolFactory 0x420DD381b31aEf6683db6B902084cB0FFECe40Da probed on 5042 as negative control only \u2014 not pinned. Factory Arc not found via explorer/logs in this cluster.",
+  "dual_venue": "CH\u01afA \u0110O s\u1ed1 pool dual-venue (dexscreener search tr\u1ea3 30 pair, arc_tagged=29 \u2014 kh\u00f4ng d\u00f9ng l\u00e0m PIN, kh\u00f4ng \u0111\u1ebfm TVL)",
+  "rtt_ms_samples": [
+    420.77,
+    324.23,
+    350.59,
+    387.71,
+    1632.82
+  ],
+  "rtt_ms_avg": 623.2239999999999,
+  "dex_pin_candidates": [
+    {
+      "name": "UNI_V4_PoolManager",
+      "address": "0x8366a39CC670B4001A1121B8F6A443A643e40951",
+      "code_bytes": 24009,
+      "empty": false,
+      "code_prefix": "0x60a0806040526004361015610012575f80fd5b5f3560e01c908162fdd58e1461",
+      "code_suffix": "6c634300081a000a",
+      "pin": true
+    },
+    {
+      "name": "UNI_V3_factory",
+      "address": "0xf0db7b58379503491d857dB50AC9ece64c653918",
+      "code_bytes": 24535,
+      "empty": false,
+      "code_prefix": "0x608060405234801561001057600080fd5b506004361061007d5760003560e01c",
+      "code_suffix": "6c6343000706000a",
+      "pin": true
+    },
+    {
+      "name": "UNI_V2_factory",
+      "address": "0x89e5DB8B5aA49aA85AC63f691524311AEB649eba",
+      "code_bytes": 13859,
+      "empty": false,
+      "code_prefix": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c",
+      "code_suffix": "6c63430005100032",
+      "pin": true
+    },
+    {
+      "name": "ACHSWAP_V2_factory",
+      "address": "0xb0C2B0acb9c13079dDd871eDaF43Aabf6e88C530",
+      "code_bytes": 13859,
+      "empty": false,
+      "code_prefix": "0x608060405234801561001057600080fd5b50600436106100885760003560e01c",
+      "code_suffix": "6c63430005100032",
+      "pin": true
+    },
+    {
+      "name": "Permit2",
+      "address": "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+      "code_bytes": 9152,
+      "empty": false,
+      "code_prefix": "0x6040608081526004908136101561001557600080fd5b600090813560e01c8063",
+      "code_suffix": "6c6343000811000a",
+      "pin": true
+    }
+  ]
+}
