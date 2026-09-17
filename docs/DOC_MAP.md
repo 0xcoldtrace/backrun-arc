@@ -15,6 +15,8 @@
 | `baocao/BAOCAO01.md` | Báo cáo cụm INV-01+A0 |
 | `baocao/BAOCAO02.md` | Báo cáo cụm A1 |
 | `baocao/BAOCAO03.md` | Báo cáo cụm A2 |
+| `baocao/BAOCAO04.md` | Báo cáo cụm A3 paper quote |
+| `baocao/evidence/paper_vps.jsonl` | Paper 30s VPS send=0 |
 | `config.toml` | Field bắt buộc, thiếu = refuse |
 | `.env.example` | `ARC_HTTP` / `ARC_WS` / `ARC_HTTP_SIM` / `PRIVATE_KEY` |
 | `pairs_arb.txt` | Candidate PASS (token,symbol,venues,depth_usd,tax_buy_bps,tax_sell_bps,ok) |

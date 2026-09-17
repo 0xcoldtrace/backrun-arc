@@ -1,0 +1,26 @@
+PAPER_START
+PRIVATE_KEY_ABSENT
+config.ok strategy=backrun chain_id=5042 dry_run=true allow_live=false bot_armed=false live_mode=off pending_enabled=false flash_provider=morpho min_profit_usdc=2 arb_max_borrow_usdc=20000 pairs_min_swap_usdc=200 min_depth_usd=8000 min_base_fee_gwei=20
+pending_enabled=false — Arc pending RPC không dùng (filter/subscribe/getBlock pending).
+rpc_crate=alloy (sol-types decode); HTTP JSON-RPC = reqwest blocking + UA
+pairbook.ok path=pairs_arb.txt entries=2 header_only=false missing_file=false skipped_bad_lines=0
+venues uni_v2=0x89e5db8b5aa49aa85ac63f691524311aeb649eba uni_v3=0xf0db7b58379503491d857db50ac9ece64c653918 uni_v4_pm=0x8366a39cc670b4001a1121b8f6a443a643e40951 ach_v2=0xb0c2b0acb9c13079ddd871edaf43aabf6e88c530 aero_cl=0xb89df768af2cfe637ceb352c587fe8edaf491d03
+morpho_pin=0x34cd04070dd72b14e241112f6d83812df5af7fcd flashLoan_called=0 (A3 không gọi)
+aero_factory=PINNED 0xb89df768af2cfe637ceb352c587fe8edaf491d03 allPoolsLength=7 allPools(0)=0xbe080ac37ad1305dfcc9521f5e6f68cfdc41b7fa base_neg_empty=true
+uni_v3_quoter=PINNED 0x7dfd4f31be6814d2906bde155c3e1b146eac1468 bytes=8273 aero_quoter=MISSING (swap-static MiniQuoter overlay; V4 quoter không dùng A3)
+paper.start seconds=30 tokens=2 sizes=100,1000,5000 log=baocao/evidence/paper_vps.jsonl send=0 PRIVATE_KEY=not_read
+gas_formula gas_est_wei=20e9*400000 native_usdc_18dec gas_est_usdc=0.008000 (không bịa)
+quote token=0x171a4217b86a807a64eb94757db6849fb4bdbaa0 symbol=cirBTC size_usdc=100 price_a=130590 price_b=130660 venue_a=aero_cl venue_b=uni_v3:100 spread_bps=5.3603 after_gas_est=-0.037857 profitable_yes_no=no send=0
+quote token=0x171a4217b86a807a64eb94757db6849fb4bdbaa0 symbol=cirBTC size_usdc=1000 price_a=1305738 price_b=1306565 venue_a=aero_cl venue_b=uni_v3:100 spread_bps=6.3336 after_gas_est=-0.452732 profitable_yes_no=no send=0
+quote token=0x171a4217b86a807a64eb94757db6849fb4bdbaa0 symbol=cirBTC size_usdc=5000 price_a=6525073 price_b=6531891 venue_a=aero_cl venue_b=uni_v3:100 spread_bps=10.4489 after_gas_est=-5.713892 profitable_yes_no=no send=0
+quote token=0xbef5f6d51cb62b58e6a8f77868681825c6fe21c1 symbol=EURC size_usdc=100 price_a=87134965 price_b=87102688 venue_a=aero_cl venue_b=uni_v3:500 spread_bps=3.7056 after_gas_est=-0.071444 profitable_yes_no=no send=0
+quote token=0xbef5f6d51cb62b58e6a8f77868681825c6fe21c1 symbol=EURC size_usdc=1000 price_a=871333552 price_b=870924677 venue_a=aero_cl venue_b=uni_v3:500 spread_bps=4.6947 after_gas_est=-0.778143 profitable_yes_no=no send=0
+quote token=0xbef5f6d51cb62b58e6a8f77868681825c6fe21c1 symbol=EURC size_usdc=5000 price_a=4356309877 price_b=1820860599 venue_a=aero_cl venue_b=uni_v3:500 spread_bps=13924.4557 after_gas_est=-6.978498 profitable_yes_no=no send=0
+paper.done ticks=56 ticks_spread_gt0=56 quotes_ok=118 no_quote=0 send=0
+paper.ok ticks=56 ticks_spread_gt0=56 send=0 PRIVATE_KEY=not_read Executor=No-Go
+PAPER_END
+JSONL_LINES=112
+SEND_GREP=112
+PROFIT_IN_NOQUOTE=n=112 noquote_with_profit_word=0
+    Finished `release` profile [optimized] target(s) in 0.12s
+     Running `target/release/arc_arb --paper-seconds 30`

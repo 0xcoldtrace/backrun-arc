@@ -1,19 +1,17 @@
 # TASKS
 
-## A2 (xong — pairbook vet + aero + VPS latency)
+## A3 (xong — paper quote 2 chân EURC/cirBTC)
 
-- Pin UR / V2 Router / SwapRouter02 / UniswapX reactor / Aero CLFactory (getCode != 0x).
-- `pairs_arb.txt` vet on-chain (depth USDC*2/1e6, tax eth_call dust, ≥2 venue).
-- `--discover` + `--watch-once` candidates / no_quote. send=0.
-- VPS NJ TTFB CSV + paper watch-once.
+- Pin Uni V3 QuoterV2 (getCode != 0x). Aero Quoter MISSING → swap-static MiniQuoter overlay.
+- Paper 100/1000/5000 USDC, aero_cl vs uni_v3. `--paper-seconds`. send=0.
+- WETH 1 dòng docs; không pairbook (1 venue sâu).
 
 ## Nợ (không chặn)
 
 - `web/` stub dashboard — chưa làm.
-- V4 per-pool depth (PoolManager gộp token) — unread, không tính chân.
-- Aero quoter — chưa pin; watch in `no_quote` nếu chỉ 1 venue quote được.
+- V4 per-pool depth (PoolManager gộp token) — unread, không tính chân, không quote V4 A3.
 - `flashFee` IERC3156 revert trên Morpho Arc; không gọi `flashLoan`.
-- sim_arb / getAmountOut đa venue profit — chưa (cấm bịa profit).
+- Aero Quoter contract — MISSING (dùng overlay).
 
 ## Cấm tới khi lệnh riêng
 

@@ -37,6 +37,12 @@ pub const UNI_V3_QUOTER: Address =
 /// Aero Lite CLFactory Arc — pin A2 (getCode != 0x, allPoolsLength=7).
 pub const AERO_CL_FACTORY: Address =
     alloy::primitives::address!("0xb89df768af2cfe637ceb352c587fe8edaf491d03");
+/// Aero Slipstream SwapRouter — Swap.sender đo on-chain; factory()=CLFactory. Không phải quoter.
+pub const AERO_SWAP_ROUTER: Address =
+    alloy::primitives::address!("0xb4702e1375f712da2e0d5f534c30c0c1513edb2b");
+/// WETH bridged ERC-20 Arc (18 dec). Không wrap native USDC. Không pairbook A3 (1 venue sâu).
+pub const WETH_ARC: Address =
+    alloy::primitives::address!("0x128cc466b61f542da60c70e3aa11c10e19b84edb");
 
 pub mod uni_v2 {
     alloy::sol_types::sol! {
@@ -459,6 +465,14 @@ mod tests {
         assert_eq!(
             classify_venue(SwapFamily::V3, PAIR, Some(AERO_CL_FACTORY)),
             Venue::AeroCl
+        );
+        assert_eq!(
+            format!("{AERO_SWAP_ROUTER:#x}"),
+            "0xb4702e1375f712da2e0d5f534c30c0c1513edb2b"
+        );
+        assert_eq!(
+            format!("{WETH_ARC:#x}"),
+            "0x128cc466b61f542da60c70e3aa11c10e19b84edb"
         );
     }
 

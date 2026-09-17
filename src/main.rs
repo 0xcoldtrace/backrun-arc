@@ -1,4 +1,4 @@
-//! A2: load config + pairbook + --watch-once / --discover.
+//! A3: paper quote EURC/cirBTC aero_cl vs uni_v3.
 //! pending_enabled=false. Không PRIVATE_KEY, không sendRaw, không Morpho.flashLoan.
 
 use std::path::Path;
@@ -6,13 +6,33 @@ use std::process::ExitCode;
 
 use arc_arb::discover::run_discover;
 use arc_arb::logs::MORPHO_BLUE;
+use arc_arb::paper::run_paper;
+use arc_arb::quote::quoter_status_line;
 use arc_arb::watch::{aero_factory_status, pinned_venues_line, print_watch_candidates, watch_once};
 use arc_arb::{Config, PairBook, RpcClient};
 
+fn arg_flag(args: &[String], name: &str) -> bool {
+    args.iter().any(|a| a == name)
+}
+
+fn arg_u64(args: &[String], name: &str) -> Option<u64> {
+    let eq = format!("{name}=");
+    for (i, a) in args.iter().enumerate() {
+        if a == name {
+            return args.get(i + 1).and_then(|s| s.parse().ok());
+        }
+        if let Some(rest) = a.strip_prefix(&eq) {
+            return rest.parse().ok();
+        }
+    }
+    None
+}
+
 fn main() -> ExitCode {
     let args: Vec<String> = std::env::args().collect();
-    let watch_once_flag = args.iter().any(|a| a == "--watch-once");
-    let discover_flag = args.iter().any(|a| a == "--discover");
+    let watch_once_flag = arg_flag(&args, "--watch-once");
+    let discover_flag = arg_flag(&args, "--discover");
+    let paper_seconds = arg_u64(&args, "--paper-seconds");
 
     let cfg = match Config::from_path(Path::new("config.toml")) {
         Ok(c) => c,
@@ -56,7 +76,7 @@ fn main() -> ExitCode {
 
     if discover_flag {
         println!("{}", pinned_venues_line());
-        println!("morpho_pin={MORPHO_BLUE:#x} flashLoan_called=0 (A2 không gọi)");
+        println!("morpho_pin={MORPHO_BLUE:#x} flashLoan_called=0 (A3 không gọi)");
         match aero_factory_status(&client) {
             Ok(s) => println!("aero_factory={s}"),
             Err(e) => println!("aero_factory=MISSING (getCode err: {e})"),
@@ -67,7 +87,7 @@ fn main() -> ExitCode {
                     "discover.ok pass={} fail={} uni_v2_usdc={} ach_v2_usdc={} aero_pools={} v3_logs={} v4_logs={} send=0",
                     r.pass, r.fail, r.v2_pairs, r.ach_pairs, r.aero_pools, r.v3_pools_seen, r.v4_pools_seen
                 );
-                println!("A2 discover — không ký, không sendRaw, không live. Executor No-Go.");
+                println!("A3 discover — không ký, không sendRaw, không live. Executor No-Go.");
                 return ExitCode::SUCCESS;
             }
             Err(e) => {
@@ -86,6 +106,30 @@ fn main() -> ExitCode {
         book.missing_file,
         book.skipped_bad_lines
     );
+
+    if let Some(secs) = paper_seconds {
+        println!("{}", pinned_venues_line());
+        println!("morpho_pin={MORPHO_BLUE:#x} flashLoan_called=0 (A3 không gọi)");
+        match aero_factory_status(&client) {
+            Ok(s) => println!("aero_factory={s}"),
+            Err(e) => println!("aero_factory=MISSING (getCode err: {e})"),
+        }
+        println!("{}", quoter_status_line(&client));
+        let log = Path::new("baocao/evidence/paper_vps.jsonl");
+        match run_paper(&client, &book, secs, cfg.min_profit_usdc, log) {
+            Ok(r) => {
+                println!(
+                    "paper.ok ticks={} ticks_spread_gt0={} send={} PRIVATE_KEY=not_read Executor=No-Go",
+                    r.ticks, r.ticks_spread_gt0, r.send_count
+                );
+                return ExitCode::SUCCESS;
+            }
+            Err(e) => {
+                eprintln!("FAIL paper: {e}");
+                return ExitCode::from(1);
+            }
+        }
+    }
 
     if !watch_once_flag {
         let block = match client.block_number_hex() {
@@ -106,17 +150,18 @@ fn main() -> ExitCode {
             "rpc.ok eth_blockNumber={} latest.number={} baseFeePerGas={}",
             block, latest_num, base_fee
         );
-        println!("A2 khung — không ký, không sendRaw, không live. (thêm --watch-once / --discover)");
+        println!("A3 khung — không ký, không sendRaw, không live. (thêm --watch-once / --discover / --paper-seconds N)");
         return ExitCode::SUCCESS;
     }
 
     println!("{}", pinned_venues_line());
-    println!("morpho_pin={MORPHO_BLUE:#x} flashLoan_called=0 (A2 không gọi)");
+    println!("morpho_pin={MORPHO_BLUE:#x} flashLoan_called=0 (A3 không gọi)");
 
     match aero_factory_status(&client) {
         Ok(s) => println!("aero_factory={s}"),
         Err(e) => println!("aero_factory=MISSING (getCode err: {e})"),
     }
+    println!("{}", quoter_status_line(&client));
 
     let report = match watch_once(&client, 20) {
         Ok(r) => r,
@@ -147,6 +192,33 @@ fn main() -> ExitCode {
     println!("send={}", report.send_count);
     println!("{}", report.dual_venue_line());
     print_watch_candidates(&client, &book);
-    println!("A2 — không ký, không sendRaw, không live. Executor No-Go.");
+    println!("A3 — không ký, không sendRaw, không live. Executor No-Go.");
     ExitCode::SUCCESS
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn paper_seconds_parse_eq_and_space() {
+        let args = vec![
+            "x".into(),
+            "--paper-seconds".into(),
+            "30".into(),
+        ];
+        let eq = vec!["x".into(), "--paper-seconds=30".into()];
+        fn arg_u64(args: &[String], name: &str) -> Option<u64> {
+            let p = format!("{name}=");
+            for (i, a) in args.iter().enumerate() {
+                if a == name {
+                    return args.get(i + 1).and_then(|s| s.parse().ok());
+                }
+                if let Some(rest) = a.strip_prefix(&p) {
+                    return rest.parse().ok();
+                }
+            }
+            None
+        }
+        assert_eq!(arg_u64(&args, "--paper-seconds"), Some(30));
+        assert_eq!(arg_u64(&eq, "--paper-seconds"), Some(30));
+    }
 }

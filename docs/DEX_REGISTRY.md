@@ -10,6 +10,7 @@ Probe: `addresses/rpc_probe.txt` + `addresses/arc.discovered.json` (2026-09-17).
 |---|---|---|---|---|---|
 | USDC ERC-20 (6 dec) | `0x3600000000000000000000000000000000000000` | https://docs.arc.io/arc/references/contract-addresses | 2026-09-17 | 1798 | PINNED — landmine decimals; native gas 18 dec |
 | EURC | `0xbEf5f6d51CB62b58e6A8f77868681825C6fe21c1` | https://docs.arc.io/arc/references/contract-addresses | 2026-09-17 | 1798 | PINNED |
+| WETH | `0x128cc466b61f542da60c70e3aa11c10e19b84edb` | gecko aero-arc WETH/USDC `0x6f302decb49fb30b2d2c609bdd16e04e7dd096fc`; proxy `implementation()` | 2026-09-17 | proxy 735 / impl 21953 | 18 dec, name Wrapped Ether. **Không** wrap native USDC (impl không có `deposit`/`withdraw`). Uni V3 USDC depth ~0 → không pairbook (cần ≥2 venue sâu). |
 | Permit2 | `0x000000000022D473030F116dDEE9F6B43aC78BA3` | https://docs.arc.io/arc/references/contract-addresses | 2026-09-17 | 9152 | PINNED |
 
 ## Uniswap
@@ -46,6 +47,8 @@ Decoder Swap logs: A1 xong (alloy `sol-types`). Router/UR/Quoter/UniswapX pin A2
 | Contract | Address | source_url | pinned_date | getCode bytes | Trạng thái |
 |---|---|---|---|---|---|
 | CLFactory | `0xb89df768af2cfe637ceb352c587fe8edaf491d03` | on-chain `factory()` từ pool aero-arc + truncated `0xb89d…d03`; https://aero.xyz/articles/aero-lite-is-live-on-arc/ ; https://api.geckoterminal.com/api/v2/networks/arc/dexes/aero-arc/pools | 2026-09-17 | 9492 | PINNED. `allPoolsLength()=7`. `allPools(0)=0xbe080ac37ad1305dfcc9521f5e6f68cfdc41b7fa` (EURC/USDC). Base factory `0x420D…40Da` getCode `0x` trên 5042 — không pin. |
+| SwapRouter | `0xb4702e1375f712da2e0d5f534c30c0c1513edb2b` | Swap.sender EURC/USDC pool; `factory()` = CLFactory | 2026-09-17 | 10060 | PINNED — router, **không** quoter. `WETH9()=0x`. |
+| Quoter | — | — | 2026-09-17 | — | **MISSING**. Quote A3 = eth_call swap-static MiniQuoter overlay (slot0+liquidity giống V3). |
 
 Đo 2026-09-17: 7 pool. USDC `balanceOf*2/1e6` ≥ 8000: 3 pool (EURC/USDC, cirBTC/USDC, WETH/USDC). Claim “7 / 5 có liq” — **số thật** `allPoolsLength=7`; chân USDC sâu = 3 (WETH/cirBTC không USDC; 2 pool USDC depth 0 hoặc 101).
 
@@ -58,5 +61,5 @@ Kyber / 1inch / LI.FI / UniswapX reactor = aggregator hoặc filler, không ph�
 | Tên | Lý do |
 |---|---|
 | Curve / fomo | Không pin (lệnh A2). |
-| Uni V3 NPM / V4 PositionManager / V4Quoter | Có getCode; A2 không bắt buộc. |
+| Uni V3 NPM / V4 PositionManager / V4Quoter | Có getCode; A3 không quote V4 (depth unread). |
 | Dual-venue depth | A2 đo: 2 token PASS (`EURC`, `cirBTC`) aero_cl+uni_v3, min_depth ≥ 8000, tax 0/0. |
