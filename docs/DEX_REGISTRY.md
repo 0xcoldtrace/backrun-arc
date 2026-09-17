@@ -20,7 +20,7 @@ Probe: `addresses/rpc_probe.txt` + `addresses/arc.discovered.json` (2026-09-17).
 | V3 factory | `0xf0db7b58379503491d857dB50AC9ece64c653918` | https://docs.achswap.app/technical/contract-addresses | 2026-09-17 | 24535 | PINNED |
 | V2 factory | `0x89e5DB8B5aA49aA85AC63f691524311AEB649eba` | https://docs.achswap.app/technical/contract-addresses | 2026-09-17 | 13859 | PINNED |
 
-Decoder Swap logs: NỢ A1. Router/Quoter chưa pin.
+Decoder Swap logs: A1 xong (alloy `sol-types`, topic chuẩn Uni V2/V3/V4). Router/Quoter chưa pin.
 
 ## AchSwap
 
@@ -42,4 +42,4 @@ Decoder Swap logs: NỢ A1. Router/Quoter chưa pin.
 |---|---|
 | Aero Lite factory | Announced live (https://aero.xyz/articles/aero-lite-is-live-on-arc/ 2026-09-16). Factory Arc chưa thấy explorer/logs. Base PoolFactory `0x420DD381b31aEf6683db6B902084cB0FFECe40Da` getCode `0x` trên 5042 — không pin. |
 | Uni V2/V3/V4 router, quoter, PositionManager | Ứng viên docs có; A0 chỉ pin factory/PM bắt buộc. |
-| Dual-venue pool count | CHƯA ĐO — không bịa số pool. |
+| Dual-venue pool count | 20 block Swap logs: 6 token ≥2 pool. Depth CHƯA ĐO. |

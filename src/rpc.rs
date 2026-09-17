@@ -72,4 +72,42 @@ impl RpcClient {
             .to_string();
         Ok((num, fee))
     }
+
+    /// eth_getLogs. `topic0_or` = OR-list for topics[0]. Không pending.
+    pub fn get_logs(
+        &self,
+        from_block: &str,
+        to_block: &str,
+        address: Option<&str>,
+        topic0_or: &[&str],
+    ) -> Result<Vec<Value>, RpcError> {
+        let mut filter = serde_json::Map::new();
+        filter.insert("fromBlock".into(), json!(from_block));
+        filter.insert("toBlock".into(), json!(to_block));
+        if let Some(addr) = address {
+            filter.insert("address".into(), json!(addr));
+        }
+        if !topic0_or.is_empty() {
+            let t0: Vec<Value> = topic0_or.iter().map(|t| json!(t)).collect();
+            filter.insert("topics".into(), json!([t0]));
+        }
+        let v = self.call("eth_getLogs", json!([Value::Object(filter)]))?;
+        v.as_array()
+            .cloned()
+            .ok_or_else(|| RpcError::Rpc(format!("eth_getLogs not array: {v}")))
+    }
+
+    pub fn eth_call(&self, to: &str, data: &str) -> Result<String, RpcError> {
+        let v = self.call("eth_call", json!([{"to": to, "data": data}, "latest"]))?;
+        v.as_str()
+            .map(|s| s.to_string())
+            .ok_or_else(|| RpcError::Rpc(format!("eth_call not hex: {v}")))
+    }
+
+    pub fn get_code_hex(&self, addr: &str) -> Result<String, RpcError> {
+        let v = self.call("eth_getCode", json!([addr, "latest"]))?;
+        v.as_str()
+            .map(|s| s.to_string())
+            .ok_or_else(|| RpcError::Rpc(format!("eth_getCode not hex: {v}")))
+    }
 }

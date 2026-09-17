@@ -10,8 +10,10 @@
 | `docs/REUSE.md` | COPY-LOGIC / CẤM-COPY / ƯU TIÊN ĐỌC |
 | `docs/DEX_REGISTRY.md` | Pin venue khi getCode != 0x |
 | `addresses/rpc_probe.txt` | Raw JSON-RPC A0 |
+| `addresses/rpc_list.md` | RPC HTTP/WSS đo thật A1 (chainId 0x13b2) |
 | `addresses/arc.discovered.json` | Tóm tắt probe |
 | `baocao/BAOCAO01.md` | Báo cáo cụm INV-01+A0 |
+| `baocao/BAOCAO02.md` | Báo cáo cụm A1 |
 | `config.toml` | Field bắt buộc, thiếu = refuse |
 | `.env.example` | `ARC_HTTP` / `ARC_WS` / `ARC_HTTP_SIM` / `PRIVATE_KEY` |
 | `pairs_arb.txt` | Header only |

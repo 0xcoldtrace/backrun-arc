@@ -1,4 +1,4 @@
-# STATE — A0 INV-01 (2026-09-17)
+# STATE — A1 (2026-09-17)
 
 Repo: `/home/dmin/backrun-arc` (lệnh ghi `ARC=/home/dmin/backrun-arb`; workspace + remote = `backrun-arc`).
 Remote: `https://github.com/0xcoldtrace/backrun-arc.git`. Nhánh `master`.
@@ -28,12 +28,19 @@ Xem `docs/DEX_REGISTRY.md`. Uni V4 PoolManager, Uni V3 factory, Uni V2 factory, 
 
 ## Dual-venue
 
-CHƯA ĐO số pool dual-venue (không bịa). Dexscreener search có pair tag `arc` — không dùng làm PIN.
+20 block Swap logs (watch-once, block head `0x1452318`): **6 token** xuất hiện ≥2 pool V2/V3. Depth/TVL **CHƯA ĐO**. Dexscreener không dùng làm PIN.
 
 ## Khung bot
 
 - Package `arc_arb`. Boot: load `config.toml` (thiếu field = refuse) + `eth_blockNumber` + `baseFeePerGas`. `pending_enabled=false`.
-- RPC crate: reqwest blocking JSON-RPC (A0). A1+ chưa chọn alloy vs ethers-rs.
+- RPC crate: **alloy** (`rpc_crate=alloy`) — `sol-types` decode Swap V2/V3/V4. HTTP JSON-RPC vẫn reqwest blocking + UA (A0).
 - `$ALL`: đọc 14/14 folder, không copy file sang repo này.
 - Contract executor: No-Go.
 - web/ stub: chưa làm (nợ TASKS).
+- Pairbook: `pairs_arb.txt` header-only, load không panic.
+- Watch: `--watch-once` = HTTP latest head → `eth_getLogs` 1 block. Không pending. 0 send.
+- V4 Swap topic = `keccak256("Swap(bytes32,address,int128,int128,uint160,uint128,int24,uint24)")` = `0x40e9cecb9f5f1f1c5b9c97dec2917b7ee92e57ba5563708daca94dd84ad7112f`. Nguồn: Uniswap v4-core `IPoolManager.sol`.
+- Circle WSS `wss://rpc.mainnet.arc.io` newHeads: **ALIVE** (đo 2026-09-17; docs Circle HTTP-only).
+- Pinax HTTP `https://arc.rpc.pinax.network` chainId `0x13b2`.
+- arc-scan.org HTTP `https://rpc.arc-scan.org` chainId `0x13b2`.
+- Aero Lite factory Arc: MISSING (Base `0x420D…40Da` getCode `0x` trên 5042).

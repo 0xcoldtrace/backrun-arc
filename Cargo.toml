@@ -18,6 +18,7 @@ serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 serde_json = "1"
 reqwest = { version = "0.13", default-features = false, features = ["json", "rustls", "blocking"] }
+alloy = { version = "2.4.2", default-features = false, features = ["sol-types"] }
 
 [profile.release]
 lto = "thin"

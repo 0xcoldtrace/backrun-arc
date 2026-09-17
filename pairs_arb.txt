@@ -1,4 +1,4 @@
 # pairs_arb.txt — Arc mainnet (5042) backrun/arb candidates
-# Header only (A0). Dòng token điền sau A1.
+# Header only (A1). Dòng token điền sau khi Chủ vet.
 # Format dự kiến: 0xToken[,0xQuote] # SYMBOL | vetted YYYY-MM-DD | note
 # Quote ngầm định = USDC ERC-20 0x3600000000000000000000000000000000000000 (6 dec)

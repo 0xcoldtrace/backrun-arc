@@ -1,9 +1,14 @@
+# secrets — never push
 .env
 key/
+*.pem
+*.ppk
+*.key
+id_rsa
+id_ed25519
+
 target/
 logs/
-*.pem
-*.key
 config.runtime.toml
 .git-credentials
 .ghtok
