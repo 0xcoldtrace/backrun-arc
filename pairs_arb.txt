@@ -1,4 +1,7 @@
 # pairs_arb.txt — Arc mainnet (5042) backrun/arb candidates
-# Header only (A1). Dòng token điền sau khi Chủ vet.
-# Format dự kiến: 0xToken[,0xQuote] # SYMBOL | vetted YYYY-MM-DD | note
-# Quote ngầm định = USDC ERC-20 0x3600000000000000000000000000000000000000 (6 dec)
+# token,symbol,venues,depth_usd,tax_buy_bps,tax_sell_bps,ok
+# Quote = USDC ERC-20 0x3600000000000000000000000000000000000000 (6 dec). depth_usd = min(leg); leg = reserve_usdc * 2 / 1e6
+# min_depth_usd=8000. tax cửa 100 bps. Không copy BSC. Kyber/1inch/LI.FI không phải venue.
+# discovered_at_unix=1789641561
+0x171a4217b86a807a64eb94757db6849fb4bdbaa0,cirBTC,aero_cl+uni_v3,371421.86,0,0,ok
+0xbef5f6d51cb62b58e6a8f77868681825c6fe21c1,EURC,aero_cl+uni_v3,13804.20,0,0,ok

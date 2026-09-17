@@ -1,20 +1,19 @@
 # TASKS
 
-## A1 (xong — decoder + rpc list)
+## A2 (xong — pairbook vet + aero + VPS latency)
 
-- Swap logs V2/V3/V4 PoolManager decode bằng alloy (`rpc_crate=alloy`).
-- Nguồn = logs block đã final (HTTP latest head / newHeads). Không pending.
-- Pairbook skeleton đọc `pairs_arb.txt` (header-only, Chủ chưa vet).
-- `--watch-once`: 1 block, in số swap decode, send=0.
+- Pin UR / V2 Router / SwapRouter02 / UniswapX reactor / Aero CLFactory (getCode != 0x).
+- `pairs_arb.txt` vet on-chain (depth USDC*2/1e6, tax eth_call dust, ≥2 venue).
+- `--discover` + `--watch-once` candidates / no_quote. send=0.
+- VPS NJ TTFB CSV + paper watch-once.
 
-## Nợ (không chặn A2 sim)
+## Nợ (không chặn)
 
 - `web/` stub dashboard — chưa làm.
-- Aero Lite factory Arc — MISSING (Base factory getCode `0x` trên 5042).
-- Dual-venue depth/TVL — 20 block logs suy ra 6 token ≥2 pool; depth **CHƯA ĐO**.
-- `flashFee` IERC3156 revert trên Morpho Arc; xác minh hoàn vốn 0 phí bằng sim/eth_call sau, không gửi tx.
-- Depth/min_swap filter theo config — load rồi, chưa sim đa venue.
-- sim_arb / getAmountOut / slot0 — chưa (A1 cấm sim_arb).
+- V4 per-pool depth (PoolManager gộp token) — unread, không tính chân.
+- Aero quoter — chưa pin; watch in `no_quote` nếu chỉ 1 venue quote được.
+- `flashFee` IERC3156 revert trên Morpho Arc; không gọi `flashLoan`.
+- sim_arb / getAmountOut đa venue profit — chưa (cấm bịa profit).
 
 ## Cấm tới khi lệnh riêng
 

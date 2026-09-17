@@ -26,29 +26,130 @@ impl RpcClient {
     pub fn new(url: String) -> Result<Self, RpcError> {
         let http = reqwest::blocking::Client::builder()
             .user_agent(UA)
-            .timeout(std::time::Duration::from_secs(20))
+            .timeout(std::time::Duration::from_secs(45))
             .build()
             .map_err(|e| RpcError::Http(e.to_string()))?;
         Ok(Self { url, http })
     }
 
+    pub fn url(&self) -> &str {
+        &self.url
+    }
+
+    fn is_rate_limit(status: reqwest::StatusCode, body: &Value) -> bool {
+        if status.as_u16() == 429 {
+            return true;
+        }
+        body.get("error")
+            .map(|e| e.to_string().to_ascii_lowercase())
+            .map(|s| s.contains("rate limit") || s.contains("too many") || s.contains("-32005"))
+            .unwrap_or(false)
+    }
+
     pub fn call(&self, method: &str, params: Value) -> Result<Value, RpcError> {
         let body = json!({"jsonrpc":"2.0","id":1,"method":method,"params":params});
-        let resp = self
-            .http
-            .post(&self.url)
-            .json(&body)
-            .send()
-            .map_err(|e| RpcError::Http(e.to_string()))?;
-        let status = resp.status();
-        let v: Value = resp.json().map_err(|e| RpcError::Http(e.to_string()))?;
-        if !status.is_success() {
-            return Err(RpcError::Http(format!("http {status} body={v}")));
+        let mut last = String::new();
+        for i in 0..8 {
+            let resp = self
+                .http
+                .post(&self.url)
+                .json(&body)
+                .send()
+                .map_err(|e| RpcError::Http(e.to_string()))?;
+            let status = resp.status();
+            let v: Value = resp.json().map_err(|e| RpcError::Http(e.to_string()))?;
+            if Self::is_rate_limit(status, &v) {
+                last = format!("http {status} body={v}");
+                std::thread::sleep(std::time::Duration::from_millis(400 * (i as u64 + 1)));
+                continue;
+            }
+            if !status.is_success() {
+                return Err(RpcError::Http(format!("http {status} body={v}")));
+            }
+            if let Some(err) = v.get("error") {
+                return Err(RpcError::Rpc(err.to_string()));
+            }
+            return Ok(v.get("result").cloned().unwrap_or(Value::Null));
         }
-        if let Some(err) = v.get("error") {
-            return Err(RpcError::Rpc(err.to_string()));
+        Err(RpcError::Http(format!("rate_limit: {last}")))
+    }
+
+    /// JSON-RPC batch. Mỗi phần tử = Ok(result) hoặc Err(rpc/http).
+    pub fn batch(&self, reqs: &[(String, Value)]) -> Result<Vec<Result<Value, RpcError>>, RpcError> {
+        if reqs.is_empty() {
+            return Ok(Vec::new());
         }
-        Ok(v.get("result").cloned().unwrap_or(Value::Null))
+        let body: Vec<Value> = reqs
+            .iter()
+            .enumerate()
+            .map(|(i, (m, p))| json!({"jsonrpc":"2.0","id":i,"method":m,"params":p}))
+            .collect();
+        let mut last = String::new();
+        let v = {
+            let mut got: Option<Value> = None;
+            for i in 0..8 {
+                let resp = self
+                    .http
+                    .post(&self.url)
+                    .json(&body)
+                    .send()
+                    .map_err(|e| RpcError::Http(e.to_string()))?;
+                let status = resp.status();
+                let parsed: Value = resp.json().map_err(|e| RpcError::Http(e.to_string()))?;
+                if Self::is_rate_limit(status, &parsed) {
+                    last = format!("http {status} body={parsed}");
+                    std::thread::sleep(std::time::Duration::from_millis(400 * (i as u64 + 1)));
+                    continue;
+                }
+                if !status.is_success() {
+                    return Err(RpcError::Http(format!("http {status} body={parsed}")));
+                }
+                got = Some(parsed);
+                break;
+            }
+            got.ok_or_else(|| RpcError::Http(format!("rate_limit: {last}")))?
+        };
+        let arr = v
+            .as_array()
+            .ok_or_else(|| RpcError::Rpc(format!("batch not array: {v}")))?;
+        let mut out: Vec<Result<Value, RpcError>> = (0..reqs.len())
+            .map(|_| Err(RpcError::Rpc("batch missing id".into())))
+            .collect();
+        for item in arr {
+            let id = item.get("id").and_then(|x| x.as_u64()).unwrap_or(u64::MAX) as usize;
+            if id >= out.len() {
+                continue;
+            }
+            if let Some(err) = item.get("error") {
+                out[id] = Err(RpcError::Rpc(err.to_string()));
+            } else {
+                out[id] = Ok(item.get("result").cloned().unwrap_or(Value::Null));
+            }
+        }
+        Ok(out)
+    }
+
+    pub fn batch_eth_call(&self, calls: &[(String, String)]) -> Result<Vec<Result<String, RpcError>>, RpcError> {
+        let reqs: Vec<(String, Value)> = calls
+            .iter()
+            .map(|(to, data)| {
+                (
+                    "eth_call".to_string(),
+                    json!([{"to": to, "data": data}, "latest"]),
+                )
+            })
+            .collect();
+        let raw = self.batch(&reqs)?;
+        Ok(raw
+            .into_iter()
+            .map(|r| {
+                r.and_then(|v| {
+                    v.as_str()
+                        .map(|s| s.to_string())
+                        .ok_or_else(|| RpcError::Rpc(format!("eth_call not hex: {v}")))
+                })
+            })
+            .collect())
     }
 
     pub fn block_number_hex(&self) -> Result<String, RpcError> {
@@ -98,7 +199,27 @@ impl RpcClient {
     }
 
     pub fn eth_call(&self, to: &str, data: &str) -> Result<String, RpcError> {
-        let v = self.call("eth_call", json!([{"to": to, "data": data}, "latest"]))?;
+        self.eth_call_ex(to, data, None, None)
+    }
+
+    pub fn eth_call_ex(
+        &self,
+        to: &str,
+        data: &str,
+        from: Option<&str>,
+        state_override: Option<Value>,
+    ) -> Result<String, RpcError> {
+        let mut tx = serde_json::Map::new();
+        tx.insert("to".into(), json!(to));
+        tx.insert("data".into(), json!(data));
+        if let Some(f) = from {
+            tx.insert("from".into(), json!(f));
+        }
+        let mut params = vec![Value::Object(tx), json!("latest")];
+        if let Some(ov) = state_override {
+            params.push(ov);
+        }
+        let v = self.call("eth_call", Value::Array(params))?;
         v.as_str()
             .map(|s| s.to_string())
             .ok_or_else(|| RpcError::Rpc(format!("eth_call not hex: {v}")))
@@ -109,5 +230,25 @@ impl RpcClient {
         v.as_str()
             .map(|s| s.to_string())
             .ok_or_else(|| RpcError::Rpc(format!("eth_getCode not hex: {v}")))
+    }
+}
+
+pub fn hex_to_u256_str(s: &str) -> Option<u128> {
+    let s = s.trim().trim_start_matches("0x");
+    if s.is_empty() {
+        return Some(0);
+    }
+    u128::from_str_radix(s, 16).ok()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::hex_to_u256_str;
+
+    #[test]
+    fn parse_hex_amount() {
+        assert_eq!(hex_to_u256_str("0x0"), Some(0));
+        assert_eq!(hex_to_u256_str("0x0a"), Some(10));
+        assert_eq!(hex_to_u256_str("0x2386f26fc10000"), Some(10_000_000_000_000_000));
     }
 }

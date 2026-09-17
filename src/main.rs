@@ -1,15 +1,18 @@
-//! A1: load config + pairbook + --watch-once (1 block Swap logs).
-//! pending_enabled=false. Không PRIVATE_KEY, không sendRaw.
+//! A2: load config + pairbook + --watch-once / --discover.
+//! pending_enabled=false. Không PRIVATE_KEY, không sendRaw, không Morpho.flashLoan.
 
 use std::path::Path;
 use std::process::ExitCode;
 
+use arc_arb::discover::run_discover;
 use arc_arb::logs::MORPHO_BLUE;
-use arc_arb::watch::{aero_factory_status, pinned_venues_line, watch_once};
+use arc_arb::watch::{aero_factory_status, pinned_venues_line, print_watch_candidates, watch_once};
 use arc_arb::{Config, PairBook, RpcClient};
 
 fn main() -> ExitCode {
-    let watch_once_flag = std::env::args().any(|a| a == "--watch-once");
+    let args: Vec<String> = std::env::args().collect();
+    let watch_once_flag = args.iter().any(|a| a == "--watch-once");
+    let discover_flag = args.iter().any(|a| a == "--discover");
 
     let cfg = match Config::from_path(Path::new("config.toml")) {
         Ok(c) => c,
@@ -38,16 +41,6 @@ fn main() -> ExitCode {
     println!("pending_enabled=false — Arc pending RPC không dùng (filter/subscribe/getBlock pending).");
     println!("rpc_crate=alloy (sol-types decode); HTTP JSON-RPC = reqwest blocking + UA");
 
-    let book = PairBook::load(Path::new(&cfg.pairs_arb_path));
-    println!(
-        "pairbook.ok path={} entries={} header_only={} missing_file={} skipped_bad_lines={}",
-        book.path.display(),
-        book.entries.len(),
-        book.header_only,
-        book.missing_file,
-        book.skipped_bad_lines
-    );
-
     let rpc_url = std::env::var("ARC_HTTP")
         .ok()
         .filter(|s| !s.trim().is_empty())
@@ -60,6 +53,39 @@ fn main() -> ExitCode {
             return ExitCode::from(1);
         }
     };
+
+    if discover_flag {
+        println!("{}", pinned_venues_line());
+        println!("morpho_pin={MORPHO_BLUE:#x} flashLoan_called=0 (A2 không gọi)");
+        match aero_factory_status(&client) {
+            Ok(s) => println!("aero_factory={s}"),
+            Err(e) => println!("aero_factory=MISSING (getCode err: {e})"),
+        }
+        match run_discover(&client, cfg.min_depth_usd, Path::new(".")) {
+            Ok(r) => {
+                println!(
+                    "discover.ok pass={} fail={} uni_v2_usdc={} ach_v2_usdc={} aero_pools={} v3_logs={} v4_logs={} send=0",
+                    r.pass, r.fail, r.v2_pairs, r.ach_pairs, r.aero_pools, r.v3_pools_seen, r.v4_pools_seen
+                );
+                println!("A2 discover — không ký, không sendRaw, không live. Executor No-Go.");
+                return ExitCode::SUCCESS;
+            }
+            Err(e) => {
+                eprintln!("FAIL discover: {e}");
+                return ExitCode::from(1);
+            }
+        }
+    }
+
+    let book = PairBook::load(Path::new(&cfg.pairs_arb_path));
+    println!(
+        "pairbook.ok path={} entries={} header_only={} missing_file={} skipped_bad_lines={}",
+        book.path.display(),
+        book.entries.len(),
+        book.header_only,
+        book.missing_file,
+        book.skipped_bad_lines
+    );
 
     if !watch_once_flag {
         let block = match client.block_number_hex() {
@@ -80,14 +106,12 @@ fn main() -> ExitCode {
             "rpc.ok eth_blockNumber={} latest.number={} baseFeePerGas={}",
             block, latest_num, base_fee
         );
-        println!("A1 khung — không ký, không sendRaw, không live. (thêm --watch-once để decode 1 block)");
+        println!("A2 khung — không ký, không sendRaw, không live. (thêm --watch-once / --discover)");
         return ExitCode::SUCCESS;
     }
 
     println!("{}", pinned_venues_line());
-    println!(
-        "morpho_pin={MORPHO_BLUE:#x} flashLoan_called=0 (A1 không gọi)"
-    );
+    println!("morpho_pin={MORPHO_BLUE:#x} flashLoan_called=0 (A2 không gọi)");
 
     match aero_factory_status(&client) {
         Ok(s) => println!("aero_factory={s}"),
@@ -112,16 +136,17 @@ fn main() -> ExitCode {
         report.family_v4
     );
     println!(
-        "venue uni_v2={} ach_v2={} uni_v3={} uni_v4={} unknown={}",
+        "venue uni_v2={} ach_v2={} uni_v3={} uni_v4={} aero_cl={} unknown={}",
         report.venue_uni_v2,
         report.venue_ach_v2,
         report.venue_uni_v3,
         report.venue_uni_v4,
+        report.venue_aero_cl,
         report.venue_unknown
     );
     println!("send={}", report.send_count);
     println!("{}", report.dual_venue_line());
-    println!("min_swap/depth loaded from config — chưa sim đa venue, không filter USDC ảo.");
-    println!("A1 — không ký, không sendRaw, không live. Executor No-Go.");
+    print_watch_candidates(&client, &book);
+    println!("A2 — không ký, không sendRaw, không live. Executor No-Go.");
     ExitCode::SUCCESS
 }

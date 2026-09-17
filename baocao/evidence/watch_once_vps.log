@@ -1,0 +1,17 @@
+config.ok strategy=backrun chain_id=5042 dry_run=true allow_live=false bot_armed=false live_mode=off pending_enabled=false flash_provider=morpho min_profit_usdc=2 arb_max_borrow_usdc=20000 pairs_min_swap_usdc=200 min_depth_usd=8000 min_base_fee_gwei=20
+pending_enabled=false — Arc pending RPC không dùng (filter/subscribe/getBlock pending).
+rpc_crate=alloy (sol-types decode); HTTP JSON-RPC = reqwest blocking + UA
+pairbook.ok path=pairs_arb.txt entries=2 header_only=false missing_file=false skipped_bad_lines=0
+venues uni_v2=0x89e5db8b5aa49aa85ac63f691524311aeb649eba uni_v3=0xf0db7b58379503491d857db50ac9ece64c653918 uni_v4_pm=0x8366a39cc670b4001a1121b8f6a443a643e40951 ach_v2=0xb0c2b0acb9c13079ddd871edaf43aabf6e88c530 aero_cl=0xb89df768af2cfe637ceb352c587fe8edaf491d03
+morpho_pin=0x34cd04070dd72b14e241112f6d83812df5af7fcd flashLoan_called=0 (A2 không gọi)
+aero_factory=PINNED 0xb89df768af2cfe637ceb352c587fe8edaf491d03 allPoolsLength=7 allPools(0)=0xbe080ac37ad1305dfcc9521f5e6f68cfdc41b7fa base_neg_empty=true
+watch-once.ok source=http_latest_head block=0x1454084 logs=12 swaps_decoded=12 family_v2=0 family_v3=1 family_v4=11
+venue uni_v2=0 ach_v2=0 uni_v3=1 uni_v4=11 aero_cl=0 unknown=0
+send=0
+dual_venue: CHƯA ĐO
+no_quote token=0x171a4217b86a807a64eb94757db6849fb4bdbaa0 symbol=cirBTC venues=aero_cl+uni_v3 quotes=1
+no_quote token=0xbef5f6d51cb62b58e6a8f77868681825c6fe21c1 symbol=EURC venues=aero_cl+uni_v3 quotes=1
+candidates_quoted=0 no_quote=2 profit=not_computed
+A2 — không ký, không sendRaw, không live. Executor No-Go.
+WATCH_OK
+

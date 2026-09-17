@@ -1,4 +1,4 @@
-# arc_arb A1 — thiếu 1 field bắt buộc = refuse load.
+# arc_arb A2 — thiếu 1 field bắt buộc = refuse load.
 # live/sendRaw TẮT. pending TẮT. strategy=backrun.
 
 strategy = "backrun"

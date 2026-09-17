@@ -15,8 +15,28 @@ pub const UNI_V4_POOL_MANAGER: Address =
 /// AchSwap V2 factory Arc.
 pub const ACHSWAP_V2_FACTORY: Address =
     alloy::primitives::address!("0xb0C2B0acb9c13079dDd871eDaF43Aabf6e88C530");
-/// Morpho Blue Arc — PIN, A1 không gọi flashLoan.
+/// Morpho Blue Arc — PIN, A1/A2 không gọi flashLoan.
 pub const MORPHO_BLUE: Address = alloy::primitives::address!("0x34CD04070dD72b14E241112F6d83812Df5Af7fCD");
+/// USDC ERC-20 (6 dec) — quote. Gas native 18 dec. KHÔNG WETH.
+pub const USDC: Address = alloy::primitives::address!("0x3600000000000000000000000000000000000000");
+/// Uni V2 Router02 — pin A2, getCode != 0x.
+pub const UNI_V2_ROUTER: Address =
+    alloy::primitives::address!("0x1f7d7550B1b028f7571E69A784071F0205FD2EfA");
+/// SwapRouter02 — pin A2.
+pub const SWAP_ROUTER_02: Address =
+    alloy::primitives::address!("0x53BF6B0684Ec7eF91e1387Da3D1a1769bC5A6F77");
+/// Universal Router — pin A2.
+pub const UNIVERSAL_ROUTER: Address =
+    alloy::primitives::address!("0x4fca4a51ab4f23a7447b3284fbd7d73289a89fb1");
+/// UniswapX DutchV3 reactor — pin A2; không phải AMM venue pairbook.
+pub const UNISWAPX_REACTOR: Address =
+    alloy::primitives::address!("0x0000000015134054eA82AE0bb9fda66b36402C36");
+/// QuoterV2 — pin A2 (quote V3, không venue).
+pub const UNI_V3_QUOTER: Address =
+    alloy::primitives::address!("0x7DfD4F31be6814D2906BDE155c3e1B146EAc1468");
+/// Aero Lite CLFactory Arc — pin A2 (getCode != 0x, allPoolsLength=7).
+pub const AERO_CL_FACTORY: Address =
+    alloy::primitives::address!("0xb89df768af2cfe637ceb352c587fe8edaf491d03");
 
 pub mod uni_v2 {
     alloy::sol_types::sol! {
@@ -81,6 +101,7 @@ pub enum Venue {
     UniV3,
     UniV4,
     AchSwapV2,
+    AeroCl,
     Unknown,
 }
 
@@ -91,6 +112,7 @@ impl Venue {
             Venue::UniV3 => "uni_v3",
             Venue::UniV4 => "uni_v4",
             Venue::AchSwapV2 => "achswap_v2",
+            Venue::AeroCl => "aero_cl",
             Venue::Unknown => "unknown",
         }
     }
@@ -230,6 +252,7 @@ pub fn classify_venue(family: SwapFamily, log_address: Address, factory: Option<
         },
         SwapFamily::V3 => match factory {
             Some(f) if f == UNI_V3_FACTORY => Venue::UniV3,
+            Some(f) if f == AERO_CL_FACTORY => Venue::AeroCl,
             _ => Venue::Unknown,
         },
     }
@@ -253,6 +276,11 @@ pub fn parse_raw_log(v: &Value) -> Option<RawLog> {
 
 pub fn parse_address(s: &str) -> Option<Address> {
     s.parse().ok()
+}
+
+/// ABI word: 12 bytes zero + 20-byte address, hex without 0x (64 chars).
+pub fn abi_word_addr(a: Address) -> String {
+    format!("{:0>64}", alloy::primitives::hex::encode(a.as_slice()))
 }
 
 pub fn parse_b256(s: &str) -> Option<B256> {
@@ -428,6 +456,22 @@ mod tests {
             classify_venue(SwapFamily::V2, PAIR, Some(SENDER)),
             Venue::Unknown
         );
+        assert_eq!(
+            classify_venue(SwapFamily::V3, PAIR, Some(AERO_CL_FACTORY)),
+            Venue::AeroCl
+        );
+    }
+
+    #[test]
+    fn abi_word_addr_pads_12_bytes() {
+        let a = address!("0xbe080ac37ad1305dfcc9521f5e6f68cfdc41b7fa");
+        let s = abi_word_addr(a);
+        assert_eq!(s.len(), 64);
+        assert_eq!(&s[0..24], "000000000000000000000000");
+        assert_eq!(&s[24..], "be080ac37ad1305dfcc9521f5e6f68cfdc41b7fa");
+        // {:0>64x} on Address is NOT a 32-byte ABI word in alloy 2 — do not use it.
+        let naive = format!("{a:0>64x}");
+        assert_ne!(naive, s, "naive Address hex pad is not ABI word");
     }
 
     #[test]

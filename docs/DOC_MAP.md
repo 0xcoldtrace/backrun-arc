@@ -14,6 +14,9 @@
 | `addresses/arc.discovered.json` | Tóm tắt probe |
 | `baocao/BAOCAO01.md` | Báo cáo cụm INV-01+A0 |
 | `baocao/BAOCAO02.md` | Báo cáo cụm A1 |
+| `baocao/BAOCAO03.md` | Báo cáo cụm A2 |
 | `config.toml` | Field bắt buộc, thiếu = refuse |
 | `.env.example` | `ARC_HTTP` / `ARC_WS` / `ARC_HTTP_SIM` / `PRIVATE_KEY` |
-| `pairs_arb.txt` | Header only |
+| `pairs_arb.txt` | Candidate PASS (token,symbol,venues,depth_usd,tax_buy_bps,tax_sell_bps,ok) |
+| `pairs_arb.rejected.txt` | Token FAIL + lý do |
+| `addresses/vps_latency.csv` | VPS NJ TTFB eth_chainId n=5 (host=REDACTED) |

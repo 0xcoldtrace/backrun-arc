@@ -2,10 +2,12 @@
 //! Không subscribe pending. 0 send.
 
 use crate::logs::{
-    ACHSWAP_V2_FACTORY, DecodedSwap, SEL_FACTORY, SEL_TOKEN0, SEL_TOKEN1, SwapFamily, UNI_V2_FACTORY,
-    UNI_V3_FACTORY, UNI_V4_POOL_MANAGER, Venue, address_from_word_hex, classify_venue, decode_swap,
-    parse_raw_log, topic_hex, topic_v2, topic_v3, topic_v4,
+    ACHSWAP_V2_FACTORY, AERO_CL_FACTORY, DecodedSwap, SEL_FACTORY, SEL_TOKEN0, SEL_TOKEN1, SwapFamily,
+    UNI_V2_FACTORY, UNI_V3_FACTORY, UNI_V4_POOL_MANAGER, Venue, address_from_word_hex, classify_venue,
+    decode_swap, parse_raw_log, topic_hex, topic_v2, topic_v3, topic_v4,
 };
+use crate::pairbook::PairBook;
+use crate::quote::quotes_for_token;
 use crate::rpc::{RpcClient, RpcError};
 use alloy::primitives::Address;
 use std::collections::{HashMap, HashSet};
@@ -22,6 +24,7 @@ pub struct WatchOnceReport {
     pub venue_ach_v2: usize,
     pub venue_uni_v3: usize,
     pub venue_uni_v4: usize,
+    pub venue_aero_cl: usize,
     pub venue_unknown: usize,
     pub send_count: u64,
     pub dual_venue_tokens: Option<usize>,
@@ -110,6 +113,7 @@ pub fn watch_once(rpc: &RpcClient, dual_venue_blocks: u64) -> Result<WatchOnceRe
             Venue::AchSwapV2 => report.venue_ach_v2 += 1,
             Venue::UniV3 => report.venue_uni_v3 += 1,
             Venue::UniV4 => report.venue_uni_v4 += 1,
+            Venue::AeroCl => report.venue_aero_cl += 1,
             Venue::Unknown => report.venue_unknown += 1,
         }
     }
@@ -184,20 +188,72 @@ fn scan_dual_venue(
     }
 }
 
-/// Aero Lite factory Arc: chỉ PIN khi getCode != 0x. Base factory đã đo 0x.
-pub fn aero_factory_status(rpc: &RpcClient) -> Result<&'static str, RpcError> {
+/// Aero Lite CLFactory Arc: PIN khi getCode != 0x. Base factory = negative control.
+pub fn aero_factory_status(rpc: &RpcClient) -> Result<String, RpcError> {
     const AERO_BASE: &str = "0x420DD381b31aEf6683db6B902084cB0FFECe40Da";
-    let code = rpc.get_code_hex(AERO_BASE)?;
+    let base = rpc.get_code_hex(AERO_BASE)?;
+    let base_empty = base == "0x" || base == "0x0" || base.len() <= 2;
+    let code = rpc.get_code_hex(&format!("{AERO_CL_FACTORY:#x}"))?;
     let empty = code == "0x" || code == "0x0" || code.len() <= 2;
     if empty {
-        Ok("MISSING")
-    } else {
-        Ok("HAS_CODE_DO_NOT_PIN_BASE_ADDR")
+        return Ok(format!(
+            "MISSING (Base {AERO_BASE} empty={base_empty}; truncated 0xb89d…d03 not on chain)"
+        ));
     }
+    let nhex = rpc.eth_call(&format!("{AERO_CL_FACTORY:#x}"), "0xefde4e64")?;
+    let n = u64::from_str_radix(nhex.trim_start_matches("0x"), 16).unwrap_or(0);
+    let slot0 = rpc.eth_call(
+        &format!("{AERO_CL_FACTORY:#x}"),
+        "0x41d1de970000000000000000000000000000000000000000000000000000000000000000",
+    )?;
+    Ok(format!(
+        "PINNED {AERO_CL_FACTORY:#x} allPoolsLength={n} allPools(0)={} base_neg_empty={base_empty}",
+        crate::logs::address_from_word_hex(&slot0)
+            .map(|a| format!("{a:#x}"))
+            .unwrap_or_else(|| "err".into())
+    ))
 }
 
 pub fn pinned_venues_line() -> String {
     format!(
-        "venues uni_v2={UNI_V2_FACTORY:#x} uni_v3={UNI_V3_FACTORY:#x} uni_v4_pm={UNI_V4_POOL_MANAGER:#x} ach_v2={ACHSWAP_V2_FACTORY:#x}"
+        "venues uni_v2={UNI_V2_FACTORY:#x} uni_v3={UNI_V3_FACTORY:#x} uni_v4_pm={UNI_V4_POOL_MANAGER:#x} ach_v2={ACHSWAP_V2_FACTORY:#x} aero_cl={AERO_CL_FACTORY:#x}"
     )
+}
+
+/// In candidate nếu ≥2 venue quote được. Thiếu quote → no_quote. Cấm bịa profit.
+pub fn print_watch_candidates(rpc: &RpcClient, book: &PairBook) {
+    if book.entries.is_empty() {
+        println!("candidates=0 pairbook_empty_or_header_only — no_quote (không bịa profit)");
+        return;
+    }
+    let mut n_ok = 0u32;
+    let mut n_no = 0u32;
+    for e in &book.entries {
+        if !e.ok {
+            continue;
+        }
+        let qs = quotes_for_token(rpc, e.token, &e.venues);
+        if qs.len() >= 2 {
+            n_ok += 1;
+            let v = qs
+                .iter()
+                .map(|q| q.venue.as_str())
+                .collect::<Vec<_>>()
+                .join("+");
+            println!(
+                "candidate token={:#x} symbol={} venues={} quote=ok quote_venues={v} (không in profit)",
+                e.token, e.symbol, e.venues
+            );
+        } else {
+            n_no += 1;
+            println!(
+                "no_quote token={:#x} symbol={} venues={} quotes={}",
+                e.token,
+                e.symbol,
+                e.venues,
+                qs.len()
+            );
+        }
+    }
+    println!("candidates_quoted={n_ok} no_quote={n_no} profit=not_computed");
 }

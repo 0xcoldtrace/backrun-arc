@@ -1,0 +1,26 @@
+config.ok strategy=backrun chain_id=5042 dry_run=true allow_live=false bot_armed=false live_mode=off pending_enabled=false flash_provider=morpho min_profit_usdc=2 arb_max_borrow_usdc=20000 pairs_min_swap_usdc=200 min_depth_usd=8000 min_base_fee_gwei=20
+pending_enabled=false — Arc pending RPC không dùng (filter/subscribe/getBlock pending).
+rpc_crate=alloy (sol-types decode); HTTP JSON-RPC = reqwest blocking + UA
+venues uni_v2=0x89e5db8b5aa49aa85ac63f691524311aeb649eba uni_v3=0xf0db7b58379503491d857db50ac9ece64c653918 uni_v4_pm=0x8366a39cc670b4001a1121b8f6a443a643e40951 ach_v2=0xb0c2b0acb9c13079ddd871edaf43aabf6e88c530 aero_cl=0xb89df768af2cfe637ceb352c587fe8edaf491d03
+morpho_pin=0x34cd04070dd72b14e241112f6d83812df5af7fcd flashLoan_called=0 (A2 không gọi)
+aero_factory=PINNED 0xb89df768af2cfe637ceb352c587fe8edaf491d03 allPoolsLength=7 allPools(0)=0xbe080ac37ad1305dfcc9521f5e6f68cfdc41b7fa base_neg_empty=true
+discover.start quote=USDC 0x3600000000000000000000000000000000000000 min_depth_usd=8000 formula=reserve_usdc*2/1e6
+discover.venues Kyber/1inch/LI.FI aggregator — không đưa vào pairbook. Curve/fomo không pin.
+discover uni_v2 allPairsLength=485
+discover achswap_v2 allPairsLength=5
+discover aero_cl allPoolsLength=7
+discover.scan uni_v2_usdc_pairs=447 ach_v2_usdc_pairs=5 aero_pools=7 v3_PoolCreated_logs=3895 v3_usdc_tokens=3866 v4_Initialize_logs=46868 (V4 depth unread → không tính chân)
+discover.tokens_with_v2_or_aero=454
+discover.v3_getPool 50/454
+discover.v3_getPool 100/454
+discover.v3_getPool 150/454
+discover.v3_getPool 200/454
+discover.v3_getPool 250/454
+discover.v3_getPool 300/454
+discover.v3_getPool 350/454
+discover.v3_getPool 400/454
+discover.v3_getPool 450/454
+discover.done pass=2 fail=452 wrote pairs_arb.txt pairs_arb.rejected.txt
+discover.ok pass=2 fail=452 uni_v2_usdc=447 ach_v2_usdc=5 aero_pools=7 v3_logs=3895 v4_logs=46868 send=0
+A2 discover — không ký, không sendRaw, không live. Executor No-Go.
+EXIT:0

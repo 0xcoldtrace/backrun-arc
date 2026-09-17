@@ -1,0 +1,7 @@
+host,region,rpc,n,ttfb_ms_1,ttfb_ms_2,ttfb_ms_3,ttfb_ms_4,ttfb_ms_5,ttfb_ms_avg,chain_id
+REDACTED,NJ,rpc.mainnet.arc.io,5,57.15,51.77,47.98,51.66,49.75,51.66,0x13b2
+REDACTED,NJ,rpc.quicknode.mainnet.arc.io,5,56.99,50.21,49.44,48.96,50.51,51.22,0x13b2
+REDACTED,NJ,arc-rpc.publicnode.com,5,66.34,46.87,48.27,49.24,58.83,53.91,0x13b2
+REDACTED,NJ,rpc.drpc.mainnet.arc.io,5,65.03,53.62,50.33,52.55,52.44,54.79,0x13b2
+REDACTED,NJ,arc.rpc.pinax.network,5,203.58,93.67,113.78,137.98,111.99,132.20,0x13b2
+REDACTED,NJ,rpc.blockdaemon.mainnet.arc.io,5,240.17,225.16,224.29,230.49,227.83,229.59,0x13b2
